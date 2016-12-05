@@ -1,0 +1,36 @@
+<html>
+<head>
+  <title>KG Server</title>
+</head>
+
+<body>
+<h1>A Simple KG Server (home)</h1>
+
+<hr>
+<h2>Relative Links:</h2>
+
+<b>Author:</b> <a href="bitsanity">bitsanity</a>
+<p/>
+
+Note KG-aware browsers are expected to <i>replace</i> URI with the content
+of the href attibute. This is unlike the behavior of HTTP browsers that
+<i>append</i> the attribute to the page URL.
+
+<p/>
+<hr/>
+<p/>
+
+<h2>External (HTTP) Links:</h2>
+
+<ul>
+  <li><a href="https://google.com">Google</a></li>
+  <li><a href="http://portland.craigslist.org">PDX Craigslist</a></li>
+</ul>
+
+<p/>
+<hr/>
+<p/>
+
+</body>
+</html>
+

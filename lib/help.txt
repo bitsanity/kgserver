@@ -1,0 +1,15 @@
+libsecp256k1 expected at $HOME/libsecp256k1 and already built
+
+From ZXing project:
+- core-3.2.1.jar
+- javase-3.2.1.jar
+
+From json.simple project:
+- json-simple-1.1.1.jar  
+
+Produced by running kgagent/build.sh:
+- libkgserver.so
+
+Hypersonic SQL Database:
+- hsqldb.jar
+
