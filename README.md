@@ -21,9 +21,9 @@ instead of four characters
 This is due to a limitation of the JSON library. This limitation
 might be removed after the standard JRE includes JSR 353
 
-Note in the description we identify values as "b64:...". The b64 is
-our notation to indicate the content is Base64. We do not actually
-include the four literals {'b' '6' '4' ':'}
+Note in the description we identify values as "b64 ...". The b64 is
+our notation to indicate the content is Base64 and we do not
+include the 'b' '6' '4' ':' characters
 
 ## Basic Message Format:
 
@@ -38,9 +38,9 @@ containing a challenge:
 
 ~~~~
 { "result": "null",
-  "error":  {"code":    1,
-             "message": "adilos.challenge",
-             "data":    "b64:challenge"},
+  "error":  { "code":    1,
+              "message": "adilos.challenge",
+              "data":    "b64 challenge" },
   "id":     "null" }
 ~~~~
 
@@ -68,7 +68,7 @@ be automatically registered. USE WITH EXTREME CAUTION, NOT IN PRODUCTION.
 
 ~~~~
 { "method": "test.register",
-  "params": ["b64:publickey"],
+  "params": ["b64 publickey"],
   "id":     "null" }
 ~~~~
 
@@ -78,16 +78,19 @@ Thereafter, requests take the form:
 
 ~~~~
 { "method": "request",
-  "params": [{"req": "b64:data",
-              "sig": "b64:ECDSA(req,a)"}],
+  "params": [{"req": "b64 data",
+              "sig": "b64 ECDSA(req,a)"}],
   "id:":    client.cookie | "null" }
 ~~~~
+
+Note that signatures are calculated and verified with the raw bytes, not the
+Base64 value.
 
 Responses take the form:
 
 ~~~~
-{ "result": {"rsp": "b64:data",
-             "sig": "b64:ECDSA(rsp,g)"},
+{ "result": { "rsp": "b64 data",
+              "sig": "b64 ECDSA(rsp,g)" },
   "error":  null,
   "id":     client.cookie | "null" }
 ~~~~
@@ -114,3 +117,6 @@ not dropped.
 - For generating and processing JSON
 - github.com/fangyidong/json-simple
 
+** Hypersonic SQL Database **
+- filedb for maintaining the Access Control List (ACL)
+- http://hsqldb.org
