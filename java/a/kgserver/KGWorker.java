@@ -67,7 +67,6 @@ public class KGWorker extends Thread
     while (true)
     {
       String msg = rdr.readLine();
-System.out.println( "IN: " + msg + "\n" );
 
       if (null == msg) break;
 
@@ -76,7 +75,6 @@ System.out.println( "IN: " + msg + "\n" );
 
       JSONObject repl = replyTo( jreq );
 
-System.out.println( "OUT: " + repl.toJSONString() + "\n" );
       pw.println( repl.toJSONString() );
     }
   }
@@ -154,10 +152,13 @@ System.out.println( "OUT: " + repl.toJSONString() + "\n" );
     byte[] redbytes = fetcher_.fetch( "default" );
 
     Secp256k1 curve = new Secp256k1();
-    byte[] sig = curve.signECDSA( SHA256.hash(redbytes), ch_.privKey() );
+    ECIES ec = new ECIES( ch_.privKey(), A_ );
+    String rspb64 = ec.encrypt( redbytes );
+    byte[] sig =
+      curve.signECDSA( SHA256.hash(rspb64.getBytes()), ch_.privKey() );
 
     JSONObject rsp = new JSONObject();
-    rsp.put( "rsp", Base64.encode(redbytes) );
+    rsp.put( "rsp", rspb64 );
     rsp.put( "sig", Base64.encode(sig) );
 
     JSONObject reply = new JSONObject();
@@ -175,18 +176,21 @@ System.out.println( "OUT: " + repl.toJSONString() + "\n" );
 
     JSONObject blob = (JSONObject) arr.get( 0 );
 
-    byte[] req = Base64.decode( (String) blob.get("req") );
+    String req64 = (String) blob.get("req");
     byte[] sigA = Base64.decode( (String) blob.get("sig") );
 
-System.out.println( "request: " + new String(req) );
     // confirm A signed the request correctly
     Secp256k1 curve = new Secp256k1();
 
-    if (!curve.verifyECDSA(sigA, SHA256.hash(req), A_))
+    if (!curve.verifyECDSA(sigA, SHA256.hash(req64.getBytes()), A_))
     {
-System.out.println( "request: sig failed" );
+      System.out.println( "request: sig failed" );
       return challenge();
     }
+
+    // decrypt request
+    ECIES ec = new ECIES( ch_.privKey(), A_ );
+    byte[] req = ec.decrypt( req64 );
 
     // fetch named resource
     String reqS = new String( req, "UTF-8" );
@@ -196,10 +200,13 @@ System.out.println( "request: sig failed" );
     if (null == rawrsp)
       return errorMessage( ERR_NORES, "Not found", reqS , id_ );
 
-    byte[] sigG = curve.signECDSA( SHA256.hash(rawrsp), ch_.privKey() );
+    // encrypt then sign the encrypted version
+    String rsp64 = ec.encrypt( rawrsp );
+    byte[] sigG =
+      curve.signECDSA( SHA256.hash(rsp64.getBytes()), ch_.privKey() );
 
     JSONObject rsp = new JSONObject();
-    rsp.put( "rsp", Base64.encode(rawrsp) );
+    rsp.put( "rsp", rsp64 );
     rsp.put( "sig", Base64.encode(sigG) );
 
     JSONObject reply = new JSONObject();
